@@ -24,6 +24,12 @@ button[data-testid="manage-app-button"] {
     display: none !important;
     visibility: hidden !important;
 }
+iframe[src*="controlpanel.streamlit.app"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
 </style>
 """
 st.markdown(clean_ui, unsafe_allow_html=True)
