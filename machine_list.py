@@ -1,61 +1,92 @@
 import streamlit as st
 import pandas as pd
-from io import BytesIO
-import os
 import subprocess
-# 设置页面标题
-st.title("机器列表编辑器")
-xls_path = os.path.join(os.path.dirname(__file__), "machines.xlsx")
-df = pd.read_excel(xls_path)
+import os
+from io import BytesIO
 
-# 显示并允许编辑
+st.title("GitHub Example - Auto Push Excel")
+
+# ------------------------------------------------------
+# GitHub Config from Secrets
+# ------------------------------------------------------
+GIT_USER = st.secrets["GIT_USERNAME"]
+GIT_EMAIL = st.secrets["GIT_EMAIL"]
+GIT_TOKEN = st.secrets["GIT_TOKEN"]
+GIT_OWNER = st.secrets["GIT_OWNER"]
+GIT_REPO = st.secrets["GIT_REPO"]
+GIT_BRANCH = st.secrets["GIT_BRANCH"]
+
+REMOTE_URL = f"https://{GIT_TOKEN}@github.com/{GIT_OWNER}/{GIT_REPO}.git"
+
+# ------------------------------------------------------
+# File path (must be writable on Streamlit Cloud)
+# ------------------------------------------------------
+DATA_DIR = "data"
+os.makedirs(DATA_DIR, exist_ok=True)
+
+FILE_PATH = os.path.join(DATA_DIR, "machines.xlsx")
+
+# 初始化檔案
+if not os.path.exists(FILE_PATH):
+    df_init = pd.DataFrame({"Machine": [], "Spec": [], "Note": []})
+    df_init.to_excel(FILE_PATH, index=False)
+
+# ------------------------------------------------------
+# Load + Editor
+# ------------------------------------------------------
+df = pd.read_excel(FILE_PATH)
 edited_df = st.data_editor(df, num_rows="dynamic")
 
-# 保存按钮
-if st.button("保存到原始文件"):
-    try:
-        edited_df.to_excel(xls_path, index=False)
-        repo_dir = os.path.dirname(os.path.abspath(__file__))
-        subprocess.run(["git", "-C", repo_dir, "config", "user.name", "RecordingApp"], capture_output=True, text=True)
-        subprocess.run(["git", "-C", repo_dir, "config", "user.email", "recording@app.local"], capture_output=True, text=True)
-        r_add = subprocess.run(["git", "-C", repo_dir, "add", "machines.xlsx"], capture_output=True, text=True)
-        r_status = subprocess.run(["git", "-C", repo_dir, "status", "--porcelain"], capture_output=True, text=True)
-        if r_status.stdout.strip() == "":
-            st.success("已保存到原始文件")
-            st.rerun()
-        r_commit = subprocess.run(["git", "-C", repo_dir, "commit", "-m", "Update machines.xlsx via Streamlit"], capture_output=True, text=True)
-        if r_commit.returncode != 0:
-            st.warning("已保存，但提交失敗")
-            st.rerun()
-        remote = os.environ.get("GIT_REMOTE")
-        branch_env = os.environ.get("GIT_BRANCH")
-        if remote:
-            subprocess.run(["git", "-C", repo_dir, "remote", "set-url", "origin", remote], capture_output=True, text=True)
-        r_branch = subprocess.run(["git", "-C", repo_dir, "rev-parse", "--abbrev-ref", "HEAD"], capture_output=True, text=True)
-        branch = branch_env or r_branch.stdout.strip() or "main"
-        subprocess.run(["git", "-C", repo_dir, "pull", "--rebase"], capture_output=True, text=True)
-        r_push = subprocess.run(["git", "-C", repo_dir, "push", "-u", "origin", branch], capture_output=True, text=True)
-        if r_push.returncode != 0:
-            st.info("已保存並提交，本地未推送")
-        else:
-            st.success("已保存並提交且已推送")
-    except Exception as e:
-        st.error(f"保存失敗：{e}")
+# ------------------------------------------------------
+# Save & Push
+# ------------------------------------------------------
+if st.button("Save & Push to GitHub"):
 
-# 下载按钮
+    edited_df.to_excel(FILE_PATH, index=False)
+
+    repo_dir = os.getcwd()
+
+    subprocess.run(["git", "-C", repo_dir, "config", "user.name", GIT_USER])
+    subprocess.run(["git", "-C", repo_dir, "config", "user.email", GIT_EMAIL])
+
+    # Add
+    subprocess.run(["git", "-C", repo_dir, "add", FILE_PATH])
+
+    # Commit
+    commit_msg = "Update machines.xlsx via Streamlit Example"
+    r_commit = subprocess.run(
+        ["git", "-C", repo_dir, "commit", "-m", commit_msg],
+        capture_output=True, text=True
+    )
+
+    if "nothing to commit" in r_commit.stdout:
+        st.info("No changes to commit.")
+    else:
+        # Set remote
+        subprocess.run(["git", "-C", repo_dir, "remote", "set-url", "origin", REMOTE_URL])
+
+        # Pull (avoid conflicts)
+        subprocess.run(["git", "-C", repo_dir, "pull", "--rebase"])
+
+        # Push
+        r_push = subprocess.run(["git", "-C", repo_dir, "push", "origin", GIT_BRANCH])
+
+        if r_push.returncode == 0:
+            st.success("✓ Successfully pushed to GitHub!")
+        else:
+            st.error("✗ Failed to push. Check GitHub token / permission.")
+
+# ------------------------------------------------------
+# Download
+# ------------------------------------------------------
 def to_excel(df):
     output = BytesIO()
     with pd.ExcelWriter(output, engine="openpyxl") as writer:
-        df.to_excel(writer, index=False)
-    output.seek(0)
+            df.to_excel(writer, index=False)
     return output.getvalue()
 
 st.download_button(
-    label="下载修改后的 machines.xlsx",
+        label="Download machines.xlsx",
     data=to_excel(edited_df),
     file_name="machines.xlsx",
-    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 )
-
-if st.button("刷新列表"):
-    st.rerun()
