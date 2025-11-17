@@ -6,33 +6,13 @@ from io import BytesIO
 from datetime import datetime
 
 st.title("🔧 设备状态记录（员工端）")
-clean_ui = """
+st.markdown("""
 <style>
-/* 隱藏右上角 toolbar */
-[data-testid="stAppToolbar"] {display: none !important;}
-header {visibility: hidden !important;}
-
-/* 隱藏 Host with Streamlit Cloud badge */
-[data-testid="stBadge"] {display: none !important;}
-
-/* 隱藏右下角 Manage app（新版 Streamlit） */
-button[data-testid="manage-app-button"] {
-    display: none !important;
-    visibility: hidden !important;
-}
-._terminalButton_rix23_138 {
-    display: none !important;
-    visibility: hidden !important;
-}
 iframe[src*="controlpanel.streamlit.app"] {
     display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
 }
 </style>
-"""
-st.markdown(clean_ui, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 
 # ------------------------------------------------------
