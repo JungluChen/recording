@@ -8,8 +8,14 @@ from datetime import datetime
 st.title("🔧 设备状态记录（员工端）")
 st.markdown("""
 <style>
-iframe[src*="controlpanel.streamlit.app"] {
+/* ⛔ 完全隱藏所有 iframe → 管控面板會被移除 */
+iframe {
     display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    height: 0 !important;
+    width: 0 !important;
 }
 </style>
 """, unsafe_allow_html=True)
