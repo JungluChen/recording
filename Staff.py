@@ -7,25 +7,17 @@ from datetime import datetime
 
 st.title("🔧 设备状态记录（员工端）")
 hide_streamlit_style = """
-    <style>
-    /* 隱藏右上角的三點選單、Github、Share 等圖示 */
-    [data-testid="stStatusWidget"] {display: none;}
-    header {visibility: hidden;}
-    .st-emotion-cache-6qob1r.eczjs0571 {display: none;} /* share button */
-    .st-emotion-cache-15ecox0.eczjs0571 {display: none;} /* edit in GitHub */
-    .st-emotion-cache-h5rgaw.e8zbici2 {display: none;} /* star icon */
-    .st-emotion-cache-1v0mbdj.e8zbici2 {display: none;} /* right side icons container */
-    </style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
-hide_right_bottom = """
 <style>
-/* 隱藏右下角 Streamlit Cloud 小船圖示區塊 */
+/* 隱藏右上角所有按鈕：Share / GitHub / Edit / Menu */
+[data-testid="stStatusWidget"] {display: none;}
+header {visibility: hidden;}
+
+/* 隱藏右下角 Streamlit Cloud badge */
 [data-testid="stBadge"] {display: none;}
 </style>
 """
-st.markdown(hide_right_bottom, unsafe_allow_html=True)
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
 
 # ------------------------------------------------------
 # GitHub Secrets
