@@ -17,7 +17,8 @@ if init_db:
     conn.commit()
 st.title("设备状态记录")
 # 选择设备
-machine = st.selectbox("请选择设备", pd.read_excel("machines.xlsx")["Machines"].tolist())
+xls_path = os.path.join(os.path.dirname(__file__), "machines.xlsx")
+machine = st.selectbox("请选择设备", pd.read_excel(xls_path)["Machines"].tolist())
 # 输入编号/情况描述
 description = st.text_input("编号/情况描述")
 # 记录时间

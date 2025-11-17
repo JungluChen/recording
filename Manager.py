@@ -12,5 +12,5 @@ st.set_page_config(
     }
 )
 
-pg = st.navigation(["Admin.py", "machine_list.py"])
+pg = st.navigation(["Admin.py", "machine_list.py", "Staff.py"])
 pg.run()
