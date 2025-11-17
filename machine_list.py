@@ -68,7 +68,7 @@ if st.button("保存"):
         resp_put = requests.put(url, headers=headers, json=payload)
 
         if resp_put.status_code in (200, 201):
-            st.success("✅ 已成功推送到 GitHub！")
+            st.success("✅ 保存成功！")
         else:
             st.error(f"推送失敗：{resp_put.status_code}")
             st.code(resp_put.text)
