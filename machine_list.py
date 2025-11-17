@@ -15,16 +15,25 @@ edited_df = st.data_editor(df, num_rows="dynamic")
 if st.button("保存到原始文件"):
     try:
         edited_df.to_excel(xls_path, index=False)
-        # 保存后自动提交到 Git
         repo_dir = os.path.dirname(os.path.abspath(__file__))
-        subprocess.run(["git", "-C", repo_dir, "add", "machines.xlsx"], check=True)
-        subprocess.run(["git", "-C", repo_dir, "commit", "-m", "Update machines.xlsx via Streamlit"], check=True)
-        subprocess.run(["git", "-C", repo_dir, "push"], check=True)
-        st.success("已保存到原始文件并同步到 Git")
-    except subprocess.CalledProcessError as e:
-        st.error(f"Git 操作失败：{e}")
+        subprocess.run(["git", "-C", repo_dir, "config", "user.name", "RecordingApp"], capture_output=True, text=True)
+        subprocess.run(["git", "-C", repo_dir, "config", "user.email", "recording@app.local"], capture_output=True, text=True)
+        r_add = subprocess.run(["git", "-C", repo_dir, "add", "machines.xlsx"], capture_output=True, text=True)
+        r_status = subprocess.run(["git", "-C", repo_dir, "status", "--porcelain"], capture_output=True, text=True)
+        if r_status.stdout.strip() == "":
+            st.success("已保存到原始文件")
+            st.rerun()
+        r_commit = subprocess.run(["git", "-C", repo_dir, "commit", "-m", "Update machines.xlsx via Streamlit"], capture_output=True, text=True)
+        if r_commit.returncode != 0:
+            st.warning("已保存，但提交失敗")
+            st.rerun()
+        r_push = subprocess.run(["git", "-C", repo_dir, "push"], capture_output=True, text=True)
+        if r_push.returncode != 0:
+            st.info("已保存並提交，本地未推送")
+        else:
+            st.success("已保存並提交且已推送")
     except Exception as e:
-        st.error(f"保存失败：{e}")
+        st.error(f"保存失敗：{e}")
 
 # 下载按钮
 def to_excel(df):
