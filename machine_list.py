@@ -4,7 +4,7 @@ import base64
 import requests
 from io import BytesIO
 
-st.title("机器清单维护与 GitHub 自动同步（Cloud 版）")
+st.title("机器清单")
 
 # ------------------------------------------------------
 # 🚀 GitHub 設定（全部來自 Secrets）
@@ -48,7 +48,7 @@ edited_df = st.data_editor(df, num_rows="dynamic")
 # ------------------------------------------------------
 # 3️⃣ 保存 + 推送（PUT 更新 GitHub 文件）
 # ------------------------------------------------------
-if st.button("保存并推送到 GitHub"):
+if st.button("保存"):
 
     try:
         # 轉成 excel bytes
