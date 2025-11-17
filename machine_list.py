@@ -1,22 +1,21 @@
 import streamlit as st
 import pandas as pd
-import subprocess
 import os
 from io import BytesIO
+import base64
+import requests
 
-st.title("GitHub Example - Auto Push Excel")
+st.title("机器清单维护与推送")
 
 # ------------------------------------------------------
 # GitHub Config from Secrets
 # ------------------------------------------------------
-GIT_USER = st.secrets["GIT_USERNAME"]
-GIT_EMAIL = st.secrets["GIT_EMAIL"]
-GIT_TOKEN = st.secrets["GIT_TOKEN"]
-GIT_OWNER = st.secrets["GIT_OWNER"]
-GIT_REPO = st.secrets["GIT_REPO"]
-GIT_BRANCH = st.secrets["GIT_BRANCH"]
-
-REMOTE_URL = f"https://{GIT_TOKEN}@github.com/{GIT_OWNER}/{GIT_REPO}.git"
+GIT_USER = st.secrets.get("GIT_USERNAME", "")
+GIT_EMAIL = st.secrets.get("GIT_EMAIL", "")
+GIT_TOKEN = st.secrets.get("GIT_TOKEN", "")
+GIT_OWNER = st.secrets.get("GIT_OWNER", "")
+GIT_REPO = st.secrets.get("GIT_REPO", "")
+GIT_BRANCH = st.secrets.get("GIT_BRANCH", "main")
 
 # ------------------------------------------------------
 # File path (must be writable on Streamlit Cloud)
@@ -28,7 +27,7 @@ FILE_PATH = os.path.join(DATA_DIR, "machines.xlsx")
 
 # 初始化檔案
 if not os.path.exists(FILE_PATH):
-    df_init = pd.DataFrame({"Machine": [], "Spec": [], "Note": []})
+    df_init = pd.DataFrame({"Machines": [], "Spec": [], "Note": []})
     df_init.to_excel(FILE_PATH, index=False)
 
 # ------------------------------------------------------
@@ -37,44 +36,31 @@ if not os.path.exists(FILE_PATH):
 df = pd.read_excel(FILE_PATH)
 edited_df = st.data_editor(df, num_rows="dynamic")
 
-# ------------------------------------------------------
-# Save & Push
-# ------------------------------------------------------
-if st.button("Save & Push to GitHub"):
-
-    edited_df.to_excel(FILE_PATH, index=False)
-
-    repo_dir = os.getcwd()
-
-    subprocess.run(["git", "-C", repo_dir, "config", "user.name", GIT_USER])
-    subprocess.run(["git", "-C", repo_dir, "config", "user.email", GIT_EMAIL])
-
-    # Add
-    subprocess.run(["git", "-C", repo_dir, "add", FILE_PATH])
-
-    # Commit
-    commit_msg = "Update machines.xlsx via Streamlit Example"
-    r_commit = subprocess.run(
-        ["git", "-C", repo_dir, "commit", "-m", commit_msg],
-        capture_output=True, text=True
-    )
-
-    if "nothing to commit" in r_commit.stdout:
-        st.info("No changes to commit.")
+if st.button("保存并推送到 GitHub"):
+    if not all([GIT_TOKEN, GIT_OWNER, GIT_REPO, GIT_BRANCH]):
+        st.error("缺少必要的 GitHub 机密配置")
     else:
-        # Set remote
-        subprocess.run(["git", "-C", repo_dir, "remote", "set-url", "origin", REMOTE_URL])
-
-        # Pull (avoid conflicts)
-        subprocess.run(["git", "-C", repo_dir, "pull", "--rebase"])
-
-        # Push
-        r_push = subprocess.run(["git", "-C", repo_dir, "push", "origin", GIT_BRANCH])
-
-        if r_push.returncode == 0:
-            st.success("✓ Successfully pushed to GitHub!")
-        else:
-            st.error("✗ Failed to push. Check GitHub token / permission.")
+        edited_df.to_excel(FILE_PATH, index=False)
+        try:
+            with open(FILE_PATH, "rb") as f:
+                content_b64 = base64.b64encode(f.read()).decode()
+            url = f"https://api.github.com/repos/{GIT_OWNER}/{GIT_REPO}/contents/{FILE_PATH}"
+            headers = {"Authorization": f"Bearer {GIT_TOKEN}", "Accept": "application/vnd.github+json"}
+            sha = None
+            resp_get = requests.get(url, headers=headers, params={"ref": GIT_BRANCH})
+            if resp_get.status_code == 200:
+                data = resp_get.json()
+                sha = data.get("sha")
+            payload = {"message": "Update machines.xlsx via Streamlit", "content": content_b64, "branch": GIT_BRANCH}
+            if sha:
+                payload["sha"] = sha
+            resp_put = requests.put(url, headers=headers, json=payload)
+            if resp_put.status_code in (200, 201):
+                st.success("已推送到 GitHub")
+            else:
+                st.error("推送失败，请检查令牌或权限")
+        except Exception:
+            st.error("推送失败，请检查令牌或权限")
 
 # ------------------------------------------------------
 # Download
@@ -85,8 +71,4 @@ def to_excel(df):
             df.to_excel(writer, index=False)
     return output.getvalue()
 
-st.download_button(
-        label="Download machines.xlsx",
-    data=to_excel(edited_df),
-    file_name="machines.xlsx",
-)
+st.download_button(label="下载 machines.xlsx", data=to_excel(edited_df), file_name="machines.xlsx")
