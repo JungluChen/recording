@@ -2,14 +2,17 @@ import streamlit as st
 import sqlite3
 import pandas as pd
 import plotly.express as px
+import os
 
 # 页面配置
 st.set_page_config(page_title="设备状态监控台", layout="wide")
 st.title("设备状态监控台")
 
 # 连接数据库
-db_path = "/Users/user/Desktop/EMS/Recording/records.db"
+db_path = os.path.join(os.path.dirname(__file__), "records.db")
 conn = sqlite3.connect(db_path)
+conn.execute("CREATE TABLE IF NOT EXISTS records (timestamp TEXT, machine TEXT, description TEXT)")
+conn.commit()
 
 # 新增：管理员清空数据库功能
 # 使用 session_state 控制弹窗，避免按钮点击后状态丢失

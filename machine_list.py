@@ -1,10 +1,12 @@
 import streamlit as st
 import pandas as pd
 from io import BytesIO
+import os
 
 # 设置页面标题
 st.title("机器列表编辑器")
-df = pd.read_excel("/Users/user/Desktop/EMS/Recording/machines.xlsx")
+xls_path = os.path.join(os.path.dirname(__file__), "machines.xlsx")
+df = pd.read_excel(xls_path)
 
 # 显示并允许编辑
 edited_df = st.data_editor(df, num_rows="dynamic")
@@ -12,7 +14,7 @@ edited_df = st.data_editor(df, num_rows="dynamic")
 # 保存按钮
 if st.button("保存到原始文件"):
     try:
-        edited_df.to_excel("/Users/user/Desktop/EMS/Recording/machines.xlsx", index=False)
+        edited_df.to_excel(xls_path, index=False)
         st.success("已保存到原始文件")
     except Exception as e:
         st.error(f"保存失败：{e}")
