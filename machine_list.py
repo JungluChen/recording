@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 import os
-
+import subprocess
 # 设置页面标题
 st.title("机器列表编辑器")
 xls_path = os.path.join(os.path.dirname(__file__), "machines.xlsx")
@@ -15,7 +15,14 @@ edited_df = st.data_editor(df, num_rows="dynamic")
 if st.button("保存到原始文件"):
     try:
         edited_df.to_excel(xls_path, index=False)
-        st.success("已保存到原始文件")
+        # 保存后自动提交到 Git
+        repo_dir = os.path.dirname(os.path.abspath(__file__))
+        subprocess.run(["git", "-C", repo_dir, "add", "machines.xlsx"], check=True)
+        subprocess.run(["git", "-C", repo_dir, "commit", "-m", "Update machines.xlsx via Streamlit"], check=True)
+        subprocess.run(["git", "-C", repo_dir, "push"], check=True)
+        st.success("已保存到原始文件并同步到 Git")
+    except subprocess.CalledProcessError as e:
+        st.error(f"Git 操作失败：{e}")
     except Exception as e:
         st.error(f"保存失败：{e}")
 
@@ -33,3 +40,6 @@ st.download_button(
     file_name="machines.xlsx",
     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 )
+
+if st.button("刷新列表"):
+    st.rerun()
