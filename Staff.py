@@ -6,7 +6,18 @@ from io import BytesIO
 from datetime import datetime
 
 st.title("🔧 设备状态记录（员工端）")
-
+hide_streamlit_style = """
+    <style>
+    /* 隱藏右上角的三點選單、Github、Share 等圖示 */
+    [data-testid="stStatusWidget"] {display: none;}
+    header {visibility: hidden;}
+    .st-emotion-cache-6qob1r.eczjs0571 {display: none;} /* share button */
+    .st-emotion-cache-15ecox0.eczjs0571 {display: none;} /* edit in GitHub */
+    .st-emotion-cache-h5rgaw.e8zbici2 {display: none;} /* star icon */
+    .st-emotion-cache-1v0mbdj.e8zbici2 {display: none;} /* right side icons container */
+    </style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 # ------------------------------------------------------
 # GitHub Secrets
 # ------------------------------------------------------
