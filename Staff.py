@@ -24,6 +24,19 @@ button[aria-label="Manage app"] {display: none !important;}
 </style>
 """
 st.markdown(clean_all, unsafe_allow_html=True)
+hide_manage_app_button = """
+<style>
+button[data-testid="manage-app-button"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+._terminalButton_rix23_138 {
+    display: none !important;
+    visibility: hidden !important;
+}
+</style>
+"""
+st.markdown(hide_manage_app_button, unsafe_allow_html=True)
 
 
 # ------------------------------------------------------
