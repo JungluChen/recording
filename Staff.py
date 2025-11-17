@@ -18,6 +18,14 @@ hide_streamlit_style = """
     </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
+hide_right_bottom = """
+<style>
+/* 隱藏右下角 Streamlit Cloud 小船圖示區塊 */
+[data-testid="stBadge"] {display: none;}
+</style>
+"""
+st.markdown(hide_right_bottom, unsafe_allow_html=True)
 # ------------------------------------------------------
 # GitHub Secrets
 # ------------------------------------------------------
