@@ -6,19 +6,35 @@ from io import BytesIO
 from datetime import datetime
 
 st.title("🔧 设备状态记录（员工端）")
-st.markdown("""
+clean_streamlit_ui = """
 <style>
-/* ⛔ 完全隱藏所有 iframe → 管控面板會被移除 */
-iframe {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-    height: 0 !important;
-    width: 0 !important;
-}
+
+    /* --- 隱藏右上角所有 Streamlit Cloud 相關按鈕 --- */
+    [data-testid="stAppToolbar"] {display: none !important;}
+    header {visibility: hidden !important;}
+    button[title="Manage the app"] {display: none !important;}
+    button[title="Deploy this app"] {display: none !important;}
+    button[title="Settings"] {display: none !important;}
+
+    /* --- 隱藏右下角所有浮動元素：Manage App / Cloud Badge / 控制面板 --- */
+    [data-testid="stStatusWidget"] {display: none !important;}
+    [data-testid="stBadge"] {display: none !important;}
+
+    /* --- 你要求的第二種最爆裂版本：隱藏所有 iframe --- */
+    iframe {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        height: 0 !important;
+        width: 0 !important;
+    }
+
 </style>
-""", unsafe_allow_html=True)
+"""
+
+st.markdown(clean_streamlit_ui, unsafe_allow_html=True)
+
 
 
 # ------------------------------------------------------
