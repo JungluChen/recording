@@ -27,7 +27,14 @@ if st.button("保存到原始文件"):
         if r_commit.returncode != 0:
             st.warning("已保存，但提交失敗")
             st.rerun()
-        r_push = subprocess.run(["git", "-C", repo_dir, "push"], capture_output=True, text=True)
+        remote = os.environ.get("GIT_REMOTE")
+        branch_env = os.environ.get("GIT_BRANCH")
+        if remote:
+            subprocess.run(["git", "-C", repo_dir, "remote", "set-url", "origin", remote], capture_output=True, text=True)
+        r_branch = subprocess.run(["git", "-C", repo_dir, "rev-parse", "--abbrev-ref", "HEAD"], capture_output=True, text=True)
+        branch = branch_env or r_branch.stdout.strip() or "main"
+        subprocess.run(["git", "-C", repo_dir, "pull", "--rebase"], capture_output=True, text=True)
+        r_push = subprocess.run(["git", "-C", repo_dir, "push", "-u", "origin", branch], capture_output=True, text=True)
         if r_push.returncode != 0:
             st.info("已保存並提交，本地未推送")
         else:
