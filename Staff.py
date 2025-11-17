@@ -6,17 +6,19 @@ from io import BytesIO
 from datetime import datetime
 
 st.title("🔧 设备状态记录（员工端）")
-hide_streamlit_style = """
+hide_manage_the_app = """
 <style>
-/* 隱藏右上角所有按鈕：Share / GitHub / Edit / Menu */
-[data-testid="stStatusWidget"] {display: none;}
-header {visibility: hidden;}
+/* 隱藏右上角的 Manage App / Deploy / Settings 按鈕 */
+button[title="Manage the app"] {display: none !important;}
+button[title="Deploy this app"] {display: none !important;}
+button[title="Settings"] {display: none !important;}
 
-/* 隱藏右下角 Streamlit Cloud badge */
-[data-testid="stBadge"] {display: none;}
+/* 隱藏包含這些按鈕的整個右上角工具列 */
+[data-testid="stAppToolbar"] {display: none !important;}
+[data-testid="stToolbar"] {display: none !important;}
 </style>
 """
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+st.markdown(hide_manage_the_app, unsafe_allow_html=True)
 
 
 # ------------------------------------------------------
