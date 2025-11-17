@@ -26,6 +26,7 @@ hide_right_bottom = """
 </style>
 """
 st.markdown(hide_right_bottom, unsafe_allow_html=True)
+
 # ------------------------------------------------------
 # GitHub Secrets
 # ------------------------------------------------------
