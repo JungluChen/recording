@@ -6,26 +6,16 @@ from io import BytesIO
 from datetime import datetime
 
 st.title("🔧 设备状态记录（员工端）")
-clean_all = """
+clean_ui = """
 <style>
-/* 隱藏右上角工具列／三點選單／GitHub／Share／Edit／Manage App */
+/* 隱藏右上角 toolbar */
 [data-testid="stAppToolbar"] {display: none !important;}
-[data-testid="stToolbar"] {display: none !important;}
 header {visibility: hidden !important;}
 
-/* 隱藏右下角浮動 Manage App 按鈕（新版 Cloud）*/
-[data-testid="stFloatingToolbar"] {display: none !important;}
-div.stFloatingToolbar {display: none !important;}
-button[aria-label="Manage app"] {display: none !important;}
-.css-1y4p8pa {display: none !important;}
-
-/* 隱藏右下角 Hosted with Streamlit Cloud badge */
+/* 隱藏 Host with Streamlit Cloud badge */
 [data-testid="stBadge"] {display: none !important;}
-</style>
-"""
-st.markdown(clean_all, unsafe_allow_html=True)
-hide_manage_app_button = """
-<style>
+
+/* 隱藏右下角 Manage app（新版 Streamlit） */
 button[data-testid="manage-app-button"] {
     display: none !important;
     visibility: hidden !important;
@@ -36,7 +26,7 @@ button[data-testid="manage-app-button"] {
 }
 </style>
 """
-st.markdown(hide_manage_app_button, unsafe_allow_html=True)
+st.markdown(clean_ui, unsafe_allow_html=True)
 
 
 # ------------------------------------------------------
