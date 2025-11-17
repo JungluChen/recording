@@ -6,19 +6,23 @@ from io import BytesIO
 from datetime import datetime
 
 st.title("🔧 设备状态记录（员工端）")
-hide_manage_the_app = """
+clean_ui = """
 <style>
-/* 隱藏右上角的 Manage App / Deploy / Settings 按鈕 */
+/* 隱藏右上角所有工具列（包含 Manage the app） */
+[data-testid="stAppToolbar"] {display: none !important;}
+[data-testid="stToolbar"] {display: none !important;}
 button[title="Manage the app"] {display: none !important;}
 button[title="Deploy this app"] {display: none !important;}
 button[title="Settings"] {display: none !important;}
 
-/* 隱藏包含這些按鈕的整個右上角工具列 */
-[data-testid="stAppToolbar"] {display: none !important;}
-[data-testid="stToolbar"] {display: none !important;}
+/* 隱藏右下角 Streamlit Cloud 小船徽章 */
+[data-testid="stBadge"] {display: none !important;}
+
+/* 隱藏 header */
+header {visibility: hidden;}
 </style>
 """
-st.markdown(hide_manage_the_app, unsafe_allow_html=True)
+st.markdown(clean_ui, unsafe_allow_html=True)
 
 
 # ------------------------------------------------------
